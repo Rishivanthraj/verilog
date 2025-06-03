@@ -1,0 +1,47 @@
+DESIGN FLOW
+module sr_latch_nand(
+    input S_n,     // Active-low Set input
+    input R_n,     // Active-low Reset input
+    output Q,      // Output Q
+    output Qbar    // Complementary output
+);
+
+    // Using continuous assignments to model the NAND-based SR latch
+  assign Q = ~(S_n & Qbar);
+  assign Qbar = ~(R_n & Q);
+
+endmodule
+
+TEST BENCH
+
+module sr_latch_nand_tb;
+    reg S_n, R_n;
+    wire Q, Qbar;
+    
+    // Instantiate the NAND-based SR latch
+    sr_latch_nand uut (.S_n(S_n), .R_n(R_n), .Q(Q), .Qbar(Qbar));
+    
+    initial begin
+        // Initialize inputs
+        S_n = 1;
+        R_n = 1;
+        
+        // Monitor changes
+        $monitor("Time = %0t: S_n = %b, R_n = %b, Q = %b, Qbar = %b", 
+                 $time, S_n, R_n, Q, Qbar);
+        
+        // Test cases
+        #10 S_n = 1; R_n = 0;  // Reset condition (active low)
+        #10 S_n = 1; R_n = 1;  // Hold previous state
+        #10 S_n = 0; R_n = 1;  // Set condition (active low)
+        #10 S_n = 1; R_n = 1;  // Hold previous state
+        #10 S_n = 0; R_n = 0;  // Invalid condition (both low)
+        #10 $finish;
+    end
+    
+    // Generate waveform file
+    initial begin
+        $dumpfile("sr_latch_nand.vcd");
+        $dumpvars(0, sr_latch_nand_tb);
+    end
+endmodule
