@@ -1,0 +1,57 @@
+module d_flip_flop (
+    input wire clk,
+    input wire rst,
+    input wire d,
+    output reg q
+);
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            q <= 0;
+        else
+            q <= d;
+    end
+endmodule
+
+
+TESTBENCH
+`timescale 1ns/1ps
+module tb_d_flip_flop;
+
+    // Testbench signals
+    reg clk;
+    reg rst;
+    reg d;
+    wire q;
+
+    // Instantiate the D Flip-Flop
+    d_flip_flop uut (
+        .clk(clk),
+        .rst(rst),
+        .d(d),
+        .q(q)
+    );
+
+    // Clock generation
+    always #5 clk = ~clk;  // 10ns period clock
+
+    // Test sequence
+    initial begin
+        // Initialize
+        $dumpfile("d_flip_flop.vcd");  // For EPWave/GTKWave
+        $dumpvars(0, tb_d_flip_flop);
+
+        clk = 0;
+        rst = 1;
+        d = 0;
+
+        #10 rst = 0;
+        #10 d = 1;
+        #10 d = 0;
+        #10 d = 1;
+        #10 d = 0;
+        #20 $finish;
+    end
+
+endmodule
+
+
